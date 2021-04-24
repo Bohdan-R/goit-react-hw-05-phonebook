@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import contactsAction from '../../redux/contacts/contacts-actions';
 import PropTypes from 'prop-types';
+import shortid from 'shortid';
 import './ContactForm.scss';
 
 class ContactForm extends Component {
@@ -12,10 +13,18 @@ class ContactForm extends Component {
 
   handleSubmit = e => {
     e.preventDefault();
-
     const { name, number } = this.state;
 
-    this.props.onSubmit(name, number);
+    const contactName = [];
+    this.props.contacts.map(contact =>
+      contactName.push(contact.name.toLowerCase()),
+    );
+
+    if (contactName.includes(name.toLowerCase())) {
+      return alert(`${name} is alredy in contacts`);
+    } else {
+      this.props.onSubmit(name, number);
+    }
 
     this.resetInput();
   };
@@ -78,17 +87,12 @@ ContactForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => {
-  return {
-    contacts: state.contacts.items,
-  };
-};
+const mapStateToProps = state => ({
+  contacts: state.contacts.items,
+});
 
-const mapDispatchToProps = dispatch => {
-  return {
-    onSubmit: (name, number) =>
-      dispatch(contactsAction.addContact(name, number)),
-  };
-};
+const mapDispatchToProps = dispatch => ({
+  onSubmit: (name, number) => dispatch(contactsAction.addContact(name, number)),
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(ContactForm);
